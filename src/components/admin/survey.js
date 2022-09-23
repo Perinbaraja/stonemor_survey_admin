@@ -1,7 +1,5 @@
 import React from "react";
-
 import { v4 as uuid } from "uuid";
-
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
@@ -23,21 +21,23 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import FormControl from "@material-ui/core/FormControl";
 import CircularProgress from "@material-ui/core/CircularProgress";
-
 import CloseIcon from "@material-ui/icons/Close";
 import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
-
 import { graphql, compose, withApollo } from "react-apollo";
 import gql from "graphql-tag";
 import { listSurveys } from "../../graphql/queries";
 import { createSurvey, deleteSurvey, addGroup } from "../../graphql/mutations";
 
 import AdminMenu from "./index";
-
+import { Breadcrumbs, Link } from "@material-ui/core";
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
+    flexGrow: 1,
+    overflow: "hidden",
+    marginLeft: 120,
+    marginTop: 20,
+    padding: theme.spacing(0, 3),
   },
   content: {
     flexGrow: 1,
@@ -48,9 +48,9 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     margin: theme.spacing(1),
+    marginTop: 20,
   },
 }));
-
 const SurveyPart = (props) => {
   const classes = useStyles();
   const {
@@ -62,25 +62,20 @@ const SurveyPart = (props) => {
   const [description, setDescription] = React.useState("");
   const [groupName, setGroupName] = React.useState("");
   const [image, setImage] = React.useState(
-    "https://source.unsplash.com/random"
+    "https://dynamix-cdn.s3.amazonaws.com/stonemorcom/stonemorcom_616045937.svg"
   );
-
   function handleSnackBarClick() {
     setOpenSnackBar(true);
   }
-
   function handleSnackBarClose(event, reason) {
     if (reason === "clickaway") {
       return;
     }
-
     setOpenSnackBar(false);
   }
-
   function handleOpenDialog() {
     setOpen(true);
   }
-
   function handleCreate(event) {
     event.preventDefault();
     props.onCreateSurvey({
@@ -92,17 +87,18 @@ const SurveyPart = (props) => {
     props.onAddGroup(groupName, props.location.state.userPoolId);
     setOpen(false);
   }
-
+  function handleBulkImport(event) {
+    event.preventDefault();
+    props.onBulkImport();
+  }
   function handleDelete(id) {
     props.onDeleteSurvey({
       id: id,
     });
   }
-
   function handleClose() {
     setOpen(false);
   }
-
   function onTitleChange(newValue) {
     if (title === newValue) {
       setTitle(newValue);
@@ -110,7 +106,6 @@ const SurveyPart = (props) => {
     }
     setTitle(newValue);
   }
-
   function onGroupNameChange(newValue) {
     if (groupName === newValue) {
       setGroupName(newValue);
@@ -118,7 +113,6 @@ const SurveyPart = (props) => {
     }
     setGroupName(newValue);
   }
-
   function onDescriptionChange(newValue) {
     if (title === newValue) {
       setDescription(newValue);
@@ -126,7 +120,6 @@ const SurveyPart = (props) => {
     }
     setDescription(newValue);
   }
-
   function onImageChange(newValue) {
     if (title === newValue) {
       setImage(newValue);
@@ -134,7 +127,6 @@ const SurveyPart = (props) => {
     }
     setImage(newValue);
   }
-
   if (loading) {
     return (
       <div>
@@ -185,6 +177,14 @@ const SurveyPart = (props) => {
         ]}
       />
       <AdminMenu />
+      <div className={classes.root}>
+        <Breadcrumbs aria-label="breadcrumb">
+          <Link underline="hover" color="inherit" href="/admin">
+            Admin
+          </Link>
+          <Typography color="primary">Manage Survey</Typography>
+        </Breadcrumbs>
+      </div>
       <div>
         <Dialog
           open={open}
@@ -242,10 +242,10 @@ const SurveyPart = (props) => {
           </FormControl>
         </Dialog>
       </div>
-      <main className={classes.content}>
+      <main className={classes.root}>
         <Typography variant="h4">Manage Surveys</Typography>
         <p />
-        <Paper className={classes.root}>
+        <Paper className={classes.content}>
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
@@ -275,7 +275,7 @@ const SurveyPart = (props) => {
                     >
                       <EditIcon />
                     </Button>
-                    <Button
+                    {/* <Button
                       onClick={() => {
                         handleDelete(survey.id);
                       }}
@@ -283,7 +283,7 @@ const SurveyPart = (props) => {
                       color="primary"
                     >
                       <DeleteIcon />
-                    </Button>
+                    </Button> */}
                   </TableCell>
                 </TableRow>
               ))}
@@ -298,11 +298,18 @@ const SurveyPart = (props) => {
         >
           <AddCircleIcon className={classes.rightIcon} /> Add Survey
         </Button>
+        {/* <Button
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          onClick={handleBulkImport}
+        >
+          <SubjectIcon className={classes.rightIcon} /> Import Sample Survey
+        </Button> */}
       </main>
     </div>
   );
 };
-
 const Survey = compose(
   graphql(gql(listSurveys), {
     options: (props) => ({
@@ -377,5 +384,4 @@ const Survey = compose(
     }),
   })
 )(SurveyPart);
-
 export default withApollo(Survey);
