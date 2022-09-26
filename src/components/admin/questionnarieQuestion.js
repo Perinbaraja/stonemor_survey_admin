@@ -101,7 +101,7 @@ const DUMMYUSERS = [
   { email: "user300@example.com", id: "300300" },
   { email: "user400@example.com", id: "400400" },
 ];
-const baseUrl = "http://localhost:3001";
+const baseUrl = "https://funny-treacle-2123a6.netlify.app";
 
 const QuestionnarieQuestionPart = (props) => {
   const classes = useStyles();
