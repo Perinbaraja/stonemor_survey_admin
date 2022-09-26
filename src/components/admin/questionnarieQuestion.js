@@ -12,7 +12,6 @@ import Button from "@material-ui/core/Button";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-import CreateIcon from "@material-ui/icons/Create";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
@@ -94,18 +93,10 @@ const StyledTableRow = withStyles((theme) => ({
   },
 }))(TableRow);
 
-const DUMMYUSERS = [
-  { email: "user100@example.com", id: "100100" },
-  { email: "user200@example.com", id: "200200" },
-  { email: "user300@example.com", id: "300300" },
-  { email: "user400@example.com", id: "400400" },
-];
-const baseUrl = "http://localhost:3001";
-
 const QuestionnarieQuestionPart = (props) => {
   const classes = useStyles();
   const {
-    data: { loading, error, getQuestionnaire, refetch },
+    data: { loading, error, getQuestionnaire },
   } = props.getQuestionnaire;
   console.log("getQuestionnaire", getQuestionnaire);
   const [open, setOpen] = useState(false);
@@ -124,9 +115,6 @@ const QuestionnarieQuestionPart = (props) => {
   const [dependentQuestionOptions, setDependentQuestionOptions] = useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [openSurveyLink, setOpenSurveyLink] = React.useState(false);
-  const [surveyUser, setSuveyUser] = React.useState("");
-  const [userSurveyLink, setUserSurveyLink] = React.useState("");
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -147,27 +135,9 @@ const QuestionnarieQuestionPart = (props) => {
     });
   };
 
-  /*Opening Creating new question Dialogbox*/
+  /*Opening Creating new question Dialobox*/
   const handleOpenDialog = () => {
     setOpen(true);
-  };
-
-  /*Opening Creating new surveylink Dialogbox*/
-  const handleOpenCreateSurveyDialog = () => {
-    setOpenSurveyLink(true);
-  };
-
-  /*Opening Creating new surveylink Dialogbox*/
-  const handleopenSurveyLinkClose = () => {
-    setSuveyUser("");
-    setUserSurveyLink("");
-    setOpenSurveyLink(false);
-  };
-
-  /* Generating survey Link */
-  const handleGeneratingSurveyLink = () => {
-    const surveyUrl = `${baseUrl}/surveyquestions/${props.match.params.questionnaire}?uid=${surveyUser}`;
-    setUserSurveyLink(surveyUrl);
   };
 
   /*Changing new question value */
@@ -277,15 +247,7 @@ const QuestionnarieQuestionPart = (props) => {
       if (listItemOptions.length > 0)
         createQuestionQuery.listOptions = listItemOptions;
     }
-    const response = props.onCreateQuestion(
-      createQuestionQuery,
-      getQuestionnaire?.id
-    );
-    console.log("response : ", JSON.stringify(response));
-    setTimeout(() => {
-      refetch();
-    }, 2000);
-
+    props.onCreateQuestion(createQuestionQuery, getQuestionnaire?.id);
     handleClose();
   };
 
@@ -906,48 +868,6 @@ const QuestionnarieQuestionPart = (props) => {
         >
           <EditQuestion />
         </Dialog>
-        <Dialog
-          open={openSurveyLink}
-          onClose={handleopenSurveyLinkClose}
-          aria-labelledby="form-dialog-title"
-          fullWidth
-        >
-          <FormControl>
-            <DialogTitle id="form-dialog-title">
-              Creating survey Link
-            </DialogTitle>
-            <DialogContent>
-              <FormControl fullWidth>
-                <InputLabel>Select User</InputLabel>
-                <Select
-                  margin="dense"
-                  fullWidth
-                  value={surveyUser}
-                  onChange={(event) => setSuveyUser(event.target.value)}
-                >
-                  {DUMMYUSERS.map((user, u) => (
-                    <MenuItem value={user?.id} key={u}>
-                      {user?.email}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              {userSurveyLink && <p>{userSurveyLink}</p>}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleopenSurveyLinkClose} color="default">
-                Close
-              </Button>
-              <Button
-                onClick={handleGeneratingSurveyLink}
-                type="button"
-                color="primary"
-              >
-                Create
-              </Button>
-            </DialogActions>
-          </FormControl>
-        </Dialog>
       </div>
       <main className={classes.root}>
         <Typography variant="h4">{getQuestionnaire?.name} </Typography>
@@ -983,16 +903,17 @@ const QuestionnarieQuestionPart = (props) => {
                   <StyledTableCell component="th" scope="row">
                     {question?.order}
                   </StyledTableCell>
-                  <StyledTableCell>{question.qu}</StyledTableCell>
-                  <StyledTableCell>{question.type}</StyledTableCell>
+                  <StyledTableCell>{question?.qu}</StyledTableCell>
+                  <StyledTableCell>{question?.type}</StyledTableCell>
                   <StyledTableCell>
-                    {question.listOptions
-                      ? question.listOptions.map((option, l) => (
+                    {question?.listOptions
+                      ? question?.listOptions.map((option, l) => (
                           <li key={l}>{option?.listValue}</li>
                         ))
                       : "(Empty)"}
                   </StyledTableCell>
                   <StyledTableCell>
+                    1
                     <Button
                       size="small"
                       color="primary"
@@ -1000,7 +921,7 @@ const QuestionnarieQuestionPart = (props) => {
                     >
                       <EditIcon />
                     </Button>
-                    {/* <Button
+                    <Button
                       size="small"
                       color="primary"
                       onClick={() => {
@@ -1008,7 +929,7 @@ const QuestionnarieQuestionPart = (props) => {
                       }}
                     >
                       <DeleteIcon />
-                    </Button> */}
+                    </Button>
                   </StyledTableCell>
                   {/* </StyledTableRow> */}
                 </StyledTableRow>
@@ -1032,15 +953,6 @@ const QuestionnarieQuestionPart = (props) => {
           onClick={handleOpenDialog}
         >
           <AddCircleIcon className={classes.rightIcon} /> Add Question
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          className={classes.button}
-          onClick={handleOpenCreateSurveyDialog}
-        >
-          <CreateIcon className={classes.rightIcon} />
-          Create Survey Link
         </Button>
       </main>
     </div>

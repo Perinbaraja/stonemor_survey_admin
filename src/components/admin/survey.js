@@ -61,6 +61,8 @@ const SurveyPart = (props) => {
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [groupName, setGroupName] = React.useState("");
+  const [isopen, setIsOpen] = React.useState(false);
+  const [deleteQuestion, setDeleteQuestion] = React.useState("");
   const [image, setImage] = React.useState(
     "https://dynamix-cdn.s3.amazonaws.com/stonemorcom/stonemorcom_616045937.svg"
   );
@@ -91,10 +93,20 @@ const SurveyPart = (props) => {
     event.preventDefault();
     props.onBulkImport();
   }
-  function handleDelete(id) {
+
+  function handleDelete() {
     props.onDeleteSurvey({
-      id: id,
+      id: deleteQuestion,
     });
+    setDeleteQuestion("");
+    setIsOpen(false);
+  }
+  const handleOpenDeleteDialog = (que) => {
+    setDeleteQuestion(que?.id);
+    setIsOpen(true);
+  };
+  function handleCloseDialog() {
+    setIsOpen(false);
   }
   function handleClose() {
     setOpen(false);
@@ -241,6 +253,36 @@ const SurveyPart = (props) => {
             </DialogActions>
           </FormControl>
         </Dialog>
+        <Dialog
+          open={isopen}
+          onClose={handleCloseDialog}
+          aria-labelledby="form-dialog-title"
+        >
+          <FormControl>
+            <DialogTitle id="form-dialog-title">
+              Delete this Question
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are You Sure You Want to Delete this Question?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog} color="default">
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  handleDelete();
+                }}
+                type="submit"
+                color="primary"
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </FormControl>
+        </Dialog>
       </div>
       <main className={classes.root}>
         <Typography variant="h4">Manage Surveys</Typography>
@@ -275,15 +317,13 @@ const SurveyPart = (props) => {
                     >
                       <EditIcon />
                     </Button>
-                    {/* <Button
-                      onClick={() => {
-                        handleDelete(survey.id);
-                      }}
+                    <Button
+                      onClick={() => handleOpenDeleteDialog(survey)}
                       size="small"
                       color="primary"
                     >
                       <DeleteIcon />
-                    </Button> */}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

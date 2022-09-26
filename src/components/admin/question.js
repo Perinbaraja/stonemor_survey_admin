@@ -60,7 +60,9 @@ const QuestionPart = (props) => {
   } = props.listQuestionnaires;
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const [isopen, setIsOpen] = React.useState(false);
   const [question, setQuestion] = React.useState("");
+  const [deleteQuestion, setDeleteQuestion] = React.useState("");
   const [questionnaire, setQuestionnaire] = React.useState("");
   const [type, setType] = React.useState("");
   const [openAddListItem, setOpenAddListItem] = React.useState(false);
@@ -78,15 +80,21 @@ const QuestionPart = (props) => {
     setOpenSnackBar(false);
   }
 
-  function handleDelete(id) {
+  function handleDelete() {
     props.onDeleteQuestion({
-      id: id,
+      id: deleteQuestion,
     });
+    setDeleteQuestion("");
+    setIsOpen(false);
   }
 
   function handleOpenDialog() {
     setOpen(true);
   }
+  const handleOpenDeleteDialog = (que) => {
+    setDeleteQuestion(que?.id);
+    setIsOpen(true);
+  };
 
   function handleCreate(event) {
     event.preventDefault();
@@ -126,7 +134,9 @@ const QuestionPart = (props) => {
     }
     setQuestionnaire(newValue);
   }
-
+  function handleCloseDialog() {
+    setIsOpen(false);
+  }
   function onTypeChange(newValue) {
     if (type === newValue) {
       setType(newValue);
@@ -201,6 +211,36 @@ const QuestionPart = (props) => {
       />
       <AdminMenu />
       <div>
+        <Dialog
+          open={isopen}
+          onClose={handleCloseDialog}
+          aria-labelledby="form-dialog-title"
+        >
+          <FormControl>
+            <DialogTitle id="form-dialog-title">
+              Delete this Question
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Are You Sure You Want to Delete this Question?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog} color="default">
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  handleDelete();
+                }}
+                type="submit"
+                color="primary"
+              >
+                Delete
+              </Button>
+            </DialogActions>
+          </FormControl>
+        </Dialog>
         <Dialog
           open={open}
           onClose={handleClose}
@@ -341,9 +381,7 @@ const QuestionPart = (props) => {
                     <Button
                       size="small"
                       color="primary"
-                      onClick={() => {
-                        handleDelete(question.id);
-                      }}
+                      onClick={() => handleOpenDeleteDialog(question)}
                     >
                       <DeleteIcon />
                     </Button>
