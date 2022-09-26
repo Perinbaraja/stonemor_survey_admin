@@ -45,6 +45,7 @@ import indigo from "@material-ui/core/colors/indigo";
 import SurveyQuestionarrireQuestion from "../custom/surveyQuestion";
 import surveyComplete from "../custom/surveyComplete";
 import EditQuestion from "../admin/EditQuestion";
+import SurveyUsers from "../admin/surveyUsers";
 
 const theme = createTheme({
   palette: {
@@ -254,7 +255,7 @@ function App() {
             path="/admin/question/:questionnaire"
             component={AdminQuestionnaireQuestions}
           />
-          <Route path="/admin/users" component={AdminUser} />
+          <Route path="/admin/users" component={SurveyUsers} />
           <Route path="/admin/groups" component={AdminGroup} />
           <Route path="/profile" component={Profile} />
           <Route

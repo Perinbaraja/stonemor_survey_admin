@@ -124,6 +124,19 @@ export const getQuestionnaire = /* GraphQL */ `
           type
           isSelf
           isDependent
+          listOptions {
+            listValue
+            nextQuestion
+            isText
+            isMultiple
+          }
+          dependent {
+            id
+            options {
+              dependentValue
+              nextQuestion
+            }
+          }
           order
           createdAt
           updatedAt
@@ -215,6 +228,10 @@ export const listQuestions = /* GraphQL */ `
         order
         dependent {
           id
+          options {
+            dependentValue
+            nextQuestion
+          }
         }
         createdAt
         updatedAt
